@@ -17,7 +17,7 @@ int main(){
 	//opening cpuinfo
 	int fd = open(FILE_NAME,O_RDONLY);
 	if(fd == -1){
-		printf("file opening fail");
+		printf("file opening FAIL2");
 	}
 	else{
 		printf("file opening success\n");
