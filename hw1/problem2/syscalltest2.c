@@ -30,24 +30,19 @@ int main(){
 	int ret = 0;
 	char core[30];
 	char modelname1[20];
-	char modelname2[20];
-	char modelname3[20];
-	char modelname4[20];
-	char modelname5[20];
-	char modelname6[20];
 	int check1 = 0;
 	int check2 = 0;
 	while(ret != EOF){
 		ret = ReadTextLine(fd,buffer,BUFFER_SIZE);	
 		if(check1 == 0){
-			check1 = sscanf(buffer,"model name :%s %s %s %s %s %s",modelname1,modelname2,modelname3,modelname4,modelname5,modelname6);
+			check1 = sscanf(buffer,"model name :%s",modelname1);
 		}
 		if(check2 == 0){
 			check2 = sscanf(buffer,"cpu cores :%s",core);
 		}
 		if(check1 == 1  && check2 ==1){
 			printf("# of processor cores = %s\n",core);
-			printf("CPU model = %s %s %s %s %s %s\n",modelname1,modelname2,modelname3,modelname4,modelname5,modelname6);
+			printf("CPU model = %s\n",modelname1);
 			break;
 		}
 	}
