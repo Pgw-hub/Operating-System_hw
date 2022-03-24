@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <dirent.h>//for using dirent structure
 #include <sys/stat.h> // for using stat structure, S_ISDIR, S_ISREG
+#include <sys/types.h>
+#include <unistd.h>
 #include <time.h>
 
 
@@ -21,7 +23,7 @@ int main(){
 
 	while((entry = readdir(dp)) != NULL){
 		lstat(entry ->d_name,&buf);//get more specific info abt the file
-		mtime = localtime((const long int*)buf.st_mtime);
+		mtime = localtime(&buf.st_mtime);
 		
 		if(S_ISDIR(buf.st_mode))
 			printf("[dir] %10s",entry -> d_name);
@@ -30,7 +32,7 @@ int main(){
 		
 		printf("\tuid = %d, gid=%d, %ld bytes, mtime=",buf.st_uid,buf.st_gid,buf.st_size);
 //		printf("last file modification : %s\n",ctime(buf.st_mtime));
-printf("%4d :%2d :%2d %02d: %2d\n",mtime->tm_year+1900, mtime->tm_mon+1,mtime->tm_mday, mtime->tm_hour,mtime->tm_min);
+printf("%d:%d:%d %d:%d:%d\n",mtime->tm_year+1900, mtime->tm_mon+1,mtime->tm_mday, mtime->tm_hour,mtime->tm_min,mtime->tm_sec);
 	}
 
 closedir(dp);
