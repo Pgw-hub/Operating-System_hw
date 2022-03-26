@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <string.h>
+
 
 #define MAX_PATH 256
 #define MAX_RESULT 100
@@ -35,31 +35,22 @@ void FindLargestFile(char *start_dir, char *largest, long *size){
 		printf("fail wandering directory at %s",start_dir);
 	}
 	else{
-//		printf("open success at %s \n",start_dir);
+		printf("open success\n");
 	}
 
 	while((entry = readdir(dp)) != NULL){
-		char temp_dir[MAX_PATH] = ""; 
-		lstat(entry -> d_name,&buf);//getting specific info into buf
+		lstat(entry -> d_name,&buf);
 
 		if(S_ISDIR(buf.st_mode)){
-//			printf("name  = %s \n",entry ->d_name);
-			if(strcmp(".",entry->d_name) != 0 && strcmp("..",entry->d_name) != 0){//not same with . , ..
-	//			printf("find gereral dic = %s\n",entry -> d_name);//for test
-				strcat(start_dir,"/");
-				strcat(start_dir,entry -> d_name);
-
-//				printf("next startdir = %s\n",start_dir);
-				FindLargestFile(start_dir,largest,size);
+			if(!strcmp(".",entry->d_name && !strcmp("..",entry->d_name)){//not same with . , ..
+				strcat(start_dir,'/');
+				strcat(start_dir,entry -> name);
+				FindLargestFile(start_dir,largest,&size);
 			}	
 		}
 		else if(S_ISREG(buf.st_mode)){
-			if(buf.st_size > *size){
-				*size = buf.st_size;
-//				printf("largest에 넣기 전 start_dir = %s\n",start_dir);
-				strncpy(largest, start_dir,strlen(start_dir)-1);
-				strncpy(largest,entry->d_name,strlen(entry->d_name)-1);
-			}
+			//largest 찾고 바꿔주고
+			//largest size 바꿔기
 		}
 	}
 }
