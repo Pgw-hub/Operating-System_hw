@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <string.h>
 
-#define MAX_PATH 256
+#define MAX_PATH 500
 #define MAX_RESULT 100
 
 void FindLargestFile(char *start_dir, char *largest, long *size);
@@ -79,14 +79,10 @@ void FindLargestFile(char *start_dir, char *largest, long *size){
 		lstat(de -> d_name, &file);
 
 		if(S_ISDIR(file.st_mode)){
-
+		char new_start_dir[MAX_PATH];
 			if(!strcmp(".",de -> d_name) || !strcmp("..", de -> d_name)) continue;
-		strcat(dir,start_dir);
-		strcat(dir,"/");
-		strcat(dir,de -> d_name);
-		printf("%s\n",dir);
-		chdir(dir);
-		FindLargestFile(dir,largest,size);
+		snprintf(new_start_dir, sizeof(new_start_dir),"%s/%s",start_dir,de->d_name);
+		FindLargestFile(new_start_dir, largest, size);
 		}
 		else{
 			if(*size < (unsigned int)file.st_size){
