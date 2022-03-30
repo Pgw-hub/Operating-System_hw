@@ -27,6 +27,9 @@ int main(int argc, char *argv[]) {
 
 
 void FindLargestFile(char *start_dir, char *largest, long *size){
+
+
+	/*
 	DIR* dp  = NULL;
 	struct dirent* entry = NULL;
 	struct stat buf;
@@ -35,7 +38,7 @@ void FindLargestFile(char *start_dir, char *largest, long *size){
 		printf("fail wandering directory at %s",start_dir);
 	}
 	else{
-//		printf("open success at %s \n",start_dir);
+	//	printf("open success at %s \n",start_dir);
 	}
 
 	while((entry = readdir(dp)) != NULL){
@@ -43,25 +46,53 @@ void FindLargestFile(char *start_dir, char *largest, long *size){
 		lstat(entry -> d_name,&buf);//getting specific info into buf
 
 		if(S_ISDIR(buf.st_mode)){
-//			printf("name  = %s \n",entry ->d_name);
+	//	printf("name  = %s \n",entry ->d_name);
 			if(strcmp(".",entry->d_name) != 0 && strcmp("..",entry->d_name) != 0){//not same with . , ..
 	//			printf("find gereral dic = %s\n",entry -> d_name);//for test
 				strcat(start_dir,"/");
 				strcat(start_dir,entry -> d_name);
 
-//				printf("next startdir = %s\n",start_dir);
+	//		printf("next startdir = %s\n",start_dir);
 				FindLargestFile(start_dir,largest,size);
 			}	
 		}
 		else if(S_ISREG(buf.st_mode)){
 			if(buf.st_size > *size){
 				*size = buf.st_size;
-//				printf("largest에 넣기 전 start_dir = %s\n",start_dir);
+	//			printf("largest에 넣기 전 start_dir = %s\n",start_dir);
 				strncpy(largest, start_dir,strlen(start_dir)-1);
 				strncpy(largest,entry->d_name,strlen(entry->d_name)-1);
 			}
 		}
 	}
+	*/
+	DIR* dr;
+	struct dirent* de;
+	struct stat file;
+	char dir[MAX_PATH];
+
+	if((dr = opendir(start_dir)) == NULL) return;
+
+	while((de = readdir(dr)) != NULL){
+		lstat(de -> d_name, &file);
+
+		if(S_ISDIR(file.st_mode)){
+
+			if(!strcmp(".",de -> d_name) || !strcmp("..", de -> d_name)) continue;
+		strcat(dir,start_dir);
+		strcat(dir,"/");
+		strcat(dir,de -> d_name);
+		chdir(dir);
+		FindLargestFile(dir,largest,size);
+		}
+		else{
+			if(*size < (unsigned int)file.st_size){
+				sprintf(largest,"%s/%s", start_dir, de ->d_name);
+				*size = (unsigned int)file.st_size;
+			}
+		}
+	}
+	closedir(dr);
 }
 
 
