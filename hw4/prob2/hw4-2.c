@@ -28,7 +28,6 @@ int main(){
 
 	//setting shared memory
 
-	//char* name = "hw4_2_21901023.shm";
 	char* name = FILENAME;
 	int shm_fd;
 	shm_fd = shm_open(name,O_CREAT|O_RDWR,0666);
@@ -54,13 +53,11 @@ int main(){
 	else{
 		wait(NULL);
 		Student *s = mmap(0, SIZE * sizeof(Student), PROT_WRITE, MAP_SHARED, shm_fd, 0);
-		//여기에 구조체 값 넣기
 		for(int i=0; i < N; i++){
 			strcpy(s[i].name,sname[i]);
 			strcpy(s[i].id,sid[i]);
 			strcpy(s[i].major,smajor[i]);
 		}
-		//printf("hello parent. my name is  %s\n and my id is %s\n",s[0].name,s[0].id);
 
 	}
 }
