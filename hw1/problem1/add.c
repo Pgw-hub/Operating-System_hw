@@ -6,7 +6,8 @@ int main()
 	printf("input two integers: ");
 	scanf("%d %d",&a, &b);
 	sum = a +b;
-	printf("%d +%d = %d\n" ,a,b,sum);
-
+	for(int i=0; i <10; i++){
+		printf("%d +%d = %d\n" ,a,b,sum);
+	}
 	return 0;
 }
