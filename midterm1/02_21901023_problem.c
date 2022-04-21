@@ -147,10 +147,12 @@ void Child(int shm_id)
 		// TO DO:
 		//	wait until the buffer is loaded.
 		//	Wait until the buffer is loaded.
-//		while(k -> loaded == TRUE);
+		
+		while(k -> loaded != TRUE);
 		//	Retrieve the text from the buffer and set the 'loaded' field to FALSE.
 		//		(Copy the text in the buffer to a local variable)
-//		printf("   ==> [child] retrieve message is %s\n", k->text);
+		printf("   ==> [child] retrieve message is %s\n", k->text);
+		k -> loaded = FALSE;
 		//	If the retrieved text is "quit", break the loop.
 		//	Display the retrieved text.
 		//		Display a prefix "[child]" before the text.
