@@ -63,7 +63,7 @@ int main(){
 		}
 		Producer(shm_fd);
 		printf("Terminating producer\n");
-		shm_unlink(FILENAME);
+		
 	}
 }
 
@@ -75,12 +75,13 @@ void Producer(int shm_fd){
 	printf("Type keys. Press ESC to end.\n");
 	while(1){
 		scanf("%c",&key);
+		InsertKey(k,key);
 		if(key == 27){
+			while(IsFull(k));
 			InsertKey(k,'\0');
 			InsertKey(k,'\0');
 			break;
 		}
-		InsertKey(k,key);
 		getchar();
 		printf("[Producer] inserting key = %c (IsEmpty = %d, IsFull = %d, KeyCount = %d, in = %d, out = %d\n",key,IsEmpty(k),IsFull(k),GetKeyCount(k),k -> in,k -> out);
 	}		
@@ -89,13 +90,14 @@ void Producer(int shm_fd){
 void Consumer(int shm_fd){
 	KeyBuffer *k = mmap( 0, sizeof(KeyBuffer), PROT_WRITE | PROT_READ,MAP_SHARED, shm_fd, 0);
 	while(1){
-		if(GetKeyCount(k) == 3){
+		if(GetKeyCount(k) > 2){
 			char temp =	DeleteKey(k);
 			if(temp == 27) break;
 			else
 				printf("  => [Consumer] deleting key = %c (IsEmpty = %d, IsFull = %d, KeyCount = %d, in = %d, out = %d\n",k -> buffer[k -> out - 1],IsEmpty(k),IsFull(k),GetKeyCount(k),k -> in,k -> out);
 		}
 	}
+	shm_unlink(FILENAME);
 	printf("Terminating consumer\n");
 }
 
@@ -103,15 +105,12 @@ void Consumer(int shm_fd){
 void InitBuffer(KeyBuffer *buf){
 	buf->in = 0;
 	buf->out = 0;
-	//printf("hello from producer/initbuffer\n");
 }
 
 void InsertKey(KeyBuffer *buf,char key){
-	//sprintf(&(buf->buffer)[buf->in],"%c",key);
 	buf -> buffer[buf -> in] = key;
 	buf -> in = (buf -> in + 1) % BUFFER_SIZE;
-	printf("buf status = %s\n",buf->buffer);
-//	printf("buf -> in = %d\n\n",buf -> in);
+	//printf("buf status = %s\n",buf->buffer);
 }
 
 char DeleteKey(KeyBuffer *buf){
@@ -134,7 +133,14 @@ int IsEmpty(KeyBuffer* buf){
 
 int GetKeyCount(KeyBuffer* buf){
 	int size;
-	return buf -> in > buf -> out ? (buf -> in - buf -> out) : (buf -> in + BUFFER_SIZE - buf -> out);
+
+	if(buf -> in >= buf -> out){
+		size = buf -> in - buf -> out;
+	}
+	else{
+		size = buf -> in + BUFFER_SIZE - buf -> out;
+	}
+	return size;
 }
 
 

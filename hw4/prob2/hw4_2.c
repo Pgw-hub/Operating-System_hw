@@ -43,22 +43,21 @@ int main(){
 	//child 
 	else if(pid == 0){
 		Student *s = mmap(0, SIZE * sizeof(Student), PROT_READ, MAP_SHARED, shm_fd, 0);
-		
+		printf("\n");	
 		for(int i=0; i < N; i++){
 			printf("name =  %s, ID = %s, major = %s\n",s[i].name,s[i].id,s[i].major);
 		}
+		shm_unlink(FILENAME);
 	}
 
 	//parent
 	else{
-		wait(NULL);
 		Student *s = mmap(0, SIZE * sizeof(Student), PROT_WRITE, MAP_SHARED, shm_fd, 0);
 		for(int i=0; i < N; i++){
 			strcpy(s[i].name,sname[i]);
 			strcpy(s[i].id,sid[i]);
 			strcpy(s[i].major,smajor[i]);
 		}
-		shm_unlink(FILENAME);
 
 	}
 }
