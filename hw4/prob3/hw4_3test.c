@@ -89,7 +89,7 @@ void Producer(int shm_fd){
 void Consumer(int shm_fd){
 	KeyBuffer *k = mmap( 0, sizeof(KeyBuffer), PROT_WRITE | PROT_READ,MAP_SHARED, shm_fd, 0);
 	while(1){
-		if(GetKeyCount(k) == 3){
+		if(GetKeyCount(k) > 2){
 			char temp =	DeleteKey(k);
 			if(temp == 27) break;
 			else
@@ -103,15 +103,12 @@ void Consumer(int shm_fd){
 void InitBuffer(KeyBuffer *buf){
 	buf->in = 0;
 	buf->out = 0;
-	//printf("hello from producer/initbuffer\n");
 }
 
 void InsertKey(KeyBuffer *buf,char key){
-	//sprintf(&(buf->buffer)[buf->in],"%c",key);
 	buf -> buffer[buf -> in] = key;
 	buf -> in = (buf -> in + 1) % BUFFER_SIZE;
 	printf("buf status = %s\n",buf->buffer);
-//	printf("buf -> in = %d\n\n",buf -> in);
 }
 
 char DeleteKey(KeyBuffer *buf){
@@ -134,7 +131,14 @@ int IsEmpty(KeyBuffer* buf){
 
 int GetKeyCount(KeyBuffer* buf){
 	int size;
-	return buf -> in > buf -> out ? (buf -> in - buf -> out) : (buf -> in + BUFFER_SIZE - buf -> out);
+
+	if(buf -> in >= buf -> out){
+		size = buf -> in - buf -> out;
+	}
+	else{
+		size = buf -> in + BUFFER_SIZE - buf -> out;
+	}
+	return size;
 }
 
 

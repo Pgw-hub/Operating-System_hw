@@ -45,6 +45,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/wait.h>
 
 #define MAX_LEN 256
 
@@ -76,15 +77,13 @@ int main()
 		fprintf(stderr, "Failed to create process.\n");
 		exit(-1);
 
-	} else if(child_pid > 0){//parent ok
-		Parent(fd[WRITE_END]);				// DO NOT modify this line.
-		printf("Terminating parent.\n");	// This message MUST be displayed.
-
-	} else {//child ok
+	} else if(child_pid == 0) {//child ok
 		Child(fd[READ_END]);				// DO NOT modify this line.
 		printf("Terminating child.\n");		// This message MUST be displayed. (IMPORTANT!)
+	} else{//parent ok
+		Parent(fd[WRITE_END]);				// DO NOT modify this line.
+		printf("Terminating parent.\n");	// This message MUST be displayed.
 	}
-
 	return 0;
 }
 

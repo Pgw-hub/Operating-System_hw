@@ -58,6 +58,7 @@ int main(){
 			strcpy(s[i].id,sid[i]);
 			strcpy(s[i].major,smajor[i]);
 		}
+		shm_unlink(FILENAME);
 
 	}
 }
