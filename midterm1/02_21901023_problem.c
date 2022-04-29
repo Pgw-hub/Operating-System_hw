@@ -126,7 +126,7 @@ void Parent(int shm_id)
 		//	Copy the input text to the buffer and set 'loaded' to TRUE.
 		sprintf(k -> text,"%s", line);
 		k -> loaded = TRUE;
-		printf("this is in buffer = %s\n",k -> text);
+		//printf("this is in buffer = %s\n",k -> text);
 		//	If the input text is "quit", break the loop.
 		if(strcmp(line,"quit") == 0) break;
 
