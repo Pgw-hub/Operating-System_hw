@@ -76,12 +76,12 @@ void Parent(int msgq_snd, int msgq_rcv)
 	while(1){
 		scanf("%d",&n.input);
 		getchar();
-		if(n.input < 0) break;
-
+		
 		if(msgsnd(msgq_snd,&n,sizeof(Num),0) == -1){
 			printf("msgsnd failed in parent\n");
 			exit(0);
 		}
+		if(n.input < 0) break;
 		
 
 		if(msgrcv(msgq_rcv,&n,sizeof(Num),0,0) == -1){
