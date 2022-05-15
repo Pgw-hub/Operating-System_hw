@@ -15,10 +15,12 @@
 typedef struct Number{
 	int input;
 	int sum;
-} Number;
+} Num;
 
 void Parent(int msgq_snd, int msgq_rcv);
 int Child(int msgq_rcv, int msgq_snd);
+
+Num n;
 
 int main()
 {
@@ -26,17 +28,16 @@ int main()
 	// 		  On failure, display an error message.
 	key_t p2c = MesgQueueParent2Child;
 	key_t c2p = MesgQueueChild2Parent;
-	int msgq_p2c;
-	int msgq_c2p;
+	int msgq_p2c = msgget(p2c, IPC_CREAT|0666);
+	int msgq_c2p = msgget(c2p, IPC_CREAT|0666);
 
-	if(msgq_p2c = msgget(p2c, IPC_CREAT|0666) == -1){
-		printf("msgget_p2c failed \n");
+	if(msgq_p2c == -1 || msgq_c2p == -1){
+		printf("masget failed\n");
 		exit(0);
 	}
-	if(msgq_c2p = msgget(c2p, IPC_CREAT|0666) == -1){
-		printf("msgget_c2p failed \n");
-		exit(0);
-	}
+
+	printf("msgqp2c : %d , msgqc2p : %d\n", msgq_p2c,msgq_c2p);
+
 
 	pid_t child_pid = fork();
 	if(child_pid < 0){
@@ -46,8 +47,7 @@ int main()
 		Parent(msgq_p2c, msgq_c2p);						// DO NOT modify this line
 
 		// TO DO: Destroy the two message queues.
-		//msgctl(msgq_p2c,IPC_RMID,NULL);
-		//msgctl(msgq_c2p,IPC_RMID,NULL);
+
 		printf("Parent terminating.\n");				// This smessage should be displayed.
 
 	} else {
@@ -63,27 +63,28 @@ void Parent(int msgq_snd, int msgq_rcv)
 {
 	/* TO DO:
         - Repeat
-            . Read an integer from the user.(0)
-            . Send the number to the child using msgsnd().(0)
-			  On failure, display an error message.(0)
-            . If the input number is negative, break the loop.(0)
-            . Receive the sum of the input numbers from the child using msgrcv().(0)
-			  On failure, display an error message.(0)
-            . Display the sum. Put a prefix "[parent]" to indicate it was printed by the parent.(0)
+            . Read an integer from the user.
+            . Send the number to the child using msgsnd().
+			  On failure, display an error message.
+            . If the input number is negative, break the loop.
+            . Receive the sum of the input numbers from the child using msgrcv().
+			  On failure, display an error message.
+            . Display the sum. Put a prefix "[parent]" to indicate it was printed by the parent.
 	*/
-	Number n;
-	n.sum = 0;
+	
 	printf("Input integer numbers and child will accumulate (-1 to finish).\n");
 	while(1){
 		scanf("%d",&n.input);
+		getchar();
+		if(n.input < 0) break;
 
-		if(msgsnd(msgq_snd,&n,sizeof(Number),0) == -1){
+		if(msgsnd(msgq_snd,&n,sizeof(Num),0) == -1){
 			printf("msgsnd failed in parent\n");
 			exit(0);
 		}
-		if(n.input < 0) break;
+		
 
-		if(msgrcv(msgq_rcv,&n,sizeof(Number),0,0) == -1){
+		if(msgrcv(msgq_rcv,&n,sizeof(Num),0,0) == -1){
 			printf("msgrcv failed in parent\n");
 			exit(0);
 		}
@@ -95,34 +96,36 @@ int Child(int msgq_rcv, int msgq_snd)
 // TO DO: implement this function
 {
 	/* TO DO:
-		- Initialize sum by zero.(0)
+		- Initialize sum by zero.
 		- Repeat
-			. Receive a number from the parent using msgrcv().(0)
-			  On failure, display an error message.(0)
-			. If the number is negative, break the loop.(0)
-			. Display the input number. Put a prefix "[child]" to indicate it was printed by the child.(0)
-			. Add the number to sum.(0)
-			. Send the sum to the parent using msgsnd(). (0)
-			  On failure, display an error message.(0)
-		- Return sum.(0)
+			. Receive a number from the parent using msgrcv().
+			  On failure, display an error message.
+			. If the number is negative, break the loop.
+			. Display the input number. Put a prefix "[child]" to indicate it was printed by the child.
+			. Add the number to sum.
+			. Send the sum to the parent using msgsnd(). 
+			  On failure, display an error message.
+		- Return sum.
 	*/
-	Number n;
+	
 	n.sum = 0;
 	while(1){
-		if(msgrcv(msgq_rcv,&n,sizeof(Number),0,0) == -1){
+		if(msgrcv(msgq_rcv, &n, sizeof(Num),0,0) == -1){
 			printf("msgrcv failed in child\n");
 			exit(0);
 		}
-
 		if(n.input < 0) break;
 		printf("[child] input number = %d\n",n.input);
-		n.sum += n.input;
+		n.sum = n.sum + n.input;
 
-		if(msgsnd(msgq_snd,&n,sizeof(Number),0) == -1){
+		// printf("[child] sum number = %d\n",n.sum);
+
+		if(msgsnd(msgq_snd,&n,sizeof(Num),0) == -1){
 			printf("msgsnd failed in child\n");
 			exit(0);
 		}
 	}
+
 	return n.sum;
 }
 
