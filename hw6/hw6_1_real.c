@@ -47,7 +47,8 @@ int main()
 		Parent(msgq_p2c, msgq_c2p);						// DO NOT modify this line
 
 		// TO DO: Destroy the two message queues.
-
+		msgctl(msgq_p2c,IPC_RMID,NULL);
+		msgctl(msgq_c2p,IPC_RMID,NULL);
 		printf("Parent terminating.\n");				// This smessage should be displayed.
 
 	} else {
