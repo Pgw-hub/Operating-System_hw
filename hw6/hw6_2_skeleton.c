@@ -61,8 +61,10 @@ int GetSum_MT(int upper, int no_thread)
 {
     pthread_t tid[MAX_THREAD];
     ThreadInfo info[MAX_THREAD];
+	pthread_attr_t attr;
 	int ret;
-
+	
+	pthread_attr_init(&attr);
     for(int i = 0; i < no_thread; i++){
         // TO DO: fill info[i] with appropriate values and create a child thread using it.
         info[i].thread_idx = i;
@@ -70,7 +72,7 @@ int GetSum_MT(int upper, int no_thread)
 		info[i].sum = 0;
 		info[i].upper = upper;
 		// write your code here
-		ret = pthread_create(&tid[i],NULL,&thread_fn,(void *)&info[i]);//i개의 thread를 만들고 돌게 한다.
+		ret = pthread_create(&tid[i],&attr,&thread_fn,(void *)&info[i]);//i개의 thread를 만들고 돌게 한다.
 		if(ret){
 			printf("error pthread_join\n");
 			exit(1);
@@ -110,7 +112,6 @@ void *thread_fn(void *vparam)
 	// 	If the current thread the 2nd and there are totally 4 threads,
 	//		the current thread computes the sum of 2, 6, 10, 14, ...
 	//  Store the partial sum in param->sum.
-
 	return NULL;
 }
 
