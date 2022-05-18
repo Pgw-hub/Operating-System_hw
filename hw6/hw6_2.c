@@ -74,7 +74,7 @@ int GetSum_MT(int upper, int no_thread)
 		// write your code here
 		ret = pthread_create(&tid[i],&attr,&thread_fn,(void *)&info[i]);//i개의 thread를 만들고 돌게 한다.
 		if(ret){
-			printf("error pthread_join\n");
+			printf("error pthread_create\n");
 			exit(1);
 		}
     }
@@ -84,7 +84,7 @@ int GetSum_MT(int upper, int no_thread)
     for(int i = 0; i < no_thread; i++){
         // TO DO:
         //  Wait for the i-th thread.
-		pthread_join(&tid[i],NULL);
+		pthread_join(tid[i],NULL);
         //  Display its partial sum.
 		printf("info [ %d ].sum = %d \n", info[i].thread_idx, info[i].sum);
         //  Accumulate the partial sum in total_sum.
@@ -106,7 +106,6 @@ void *thread_fn(void *vparam)
 		temp = (i + (j*m));
 		if(temp <= param -> upper) param -> sum += temp; 
 	}
-
 	// TO DO: Compute the sum of numbers i, i + m, i + 2m, i + 3m, ...,
 	//		where i is the index of current thread and m is the total number of threads
 	// 	If the current thread the 2nd and there are totally 4 threads,
