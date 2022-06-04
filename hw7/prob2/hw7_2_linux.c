@@ -77,12 +77,13 @@ int main(int argc, char *argv[])
 
 	// TO DO: initialize the mutex or semaphore.
 	//		on failure, display an error message and quit
-	semaphore = sem_open("semaphore",O_CREAT, 0777, no_ticket);
-	if(semaphore == SEM_FAILED){
-		perror("error");
-		exit(-1);	
-	}
-	sem_unlink("semaphore");
+//	semaphore = sem_open("semaphore",O_CREAT, 0777, no_ticket);
+//	if(semaphore == SEM_FAILED){
+//		perror("error");
+//		exit(-1);	
+//	}
+//	sem_unlink("semaphore");
+	sem_init(&semaphore,0,no_ticket);
 	int screen_width = getWindowWidth();
 	int screen_height = getWindowHeight() - 3;
 
@@ -135,7 +136,7 @@ void* ThreadFn(void *vParam)
 	int oldy = 1;
 	while(thread_cont){
 		// TO DO: implement entry section here 
-		if(param -> y == (param -> screen_height / 3)) sem_wait(semaphore);
+		if(param -> y == (param -> screen_height / 3)) sem_wait(&semaphore);
 		gotoxy(param->x, oldy);
 		putchar(' ');
 
@@ -145,7 +146,7 @@ void* ThreadFn(void *vParam)
 		fflush(stdout);
 
 		// TO DO: implement exit section here 
-		if(param -> y == (param -> screen_height * 2 / 3)) sem_post(semaphore);
+		if(param -> y == (param -> screen_height * 2 / 3)) sem_post(&semaphore);
 		oldy = param ->  y;
 		param -> y++;
 
@@ -158,7 +159,7 @@ void* ThreadFn(void *vParam)
 	}
 
 	// TO DO: if current broke loop in the critical region, unlock mutex
-	sem_post(semaphore);
+	sem_post(&semaphore);
 	return NULL;
 }
 
