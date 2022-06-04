@@ -29,12 +29,11 @@
 #include <unistd.h>
 #include <pthread.h>
 // TO DO: if necessary, include more header files
-
+#include <semaphore.h>
 #include "Console.h"
 
 #define TRUE 1
 #define FALSE 0
-
 #define MAX_THREAD 30
 
 typedef struct {
@@ -43,17 +42,17 @@ typedef struct {
 	int screen_height;
 	int x;
 	int delay;
-	// TO DO: add fields to pass the vertical coordinates of the critical region(0)
-	int y;
 
+	// TO DO: add fields to pass the vertical coordinates of the critical region
+	int y;
 } ThreadParam;
 
 int thread_cont = TRUE;			// global variable to control the loop in the thread function
 
 void* ThreadFn(void *vParam);
 
-// TO DO: declare a mutex or semaphore as a global variable(0)
-pthread_mutex_t mutex;
+// TO DO: declare a mutex or semaphore as a global variable
+sem_t semaphore;
 
 int main(int argc, char *argv[])
 {
@@ -61,20 +60,29 @@ int main(int argc, char *argv[])
 	clrscr();
 
 	int no_thread = 0;
-	if(argc > 1)
-		no_thread = atoi(argv[1]);
+	int no_ticket = 0;
+	if(argc > 2){
+		no_thread = atoi(argv[1]);	
+		no_ticket = atoi(argv[2]);
+	}
+	else{
+		printf("input 2 argument : <no_thread> <no_ticket>");
+		exit(-1);
+	}
 
 	if(no_thread > MAX_THREAD)
 		no_thread = MAX_THREAD;
 	else if(no_thread == 0)
 		no_thread = 5;
 
-	// TO DO: initialize the mutex or semaphore.(0)
+	// TO DO: initialize the mutex or semaphore.
 	//		on failure, display an error message and quit
-	if(pthread_mutex_init(&mutex,NULL) != 0){
-		perror("error pthread mutex init");
-		exit(-1);
+	semaphore = sem_open("semaphore",O_CREAT, 0777, no_ticket);
+	if(semaphore == SEM_FAILED){
+		perror("error");
+		exit(-1);	
 	}
+	sem_unlink("semaphore");
 	int screen_width = getWindowWidth();
 	int screen_height = getWindowHeight() - 3;
 
@@ -96,7 +104,7 @@ int main(int argc, char *argv[])
 		param[i].x = screen_width * (i + 1) / (no_thread + 1);
 		param[i].delay = rand() % 300;
 
-		// TO DO: add code to store the vertical coordinates of the critical region in param[i](0)
+		// TO DO: add code to store the vertical coordinates of the critical region in param[i]
 		param[i].y = 1;
 		pthread_create(&tid[i], NULL, ThreadFn, &param[i]);
 	}
@@ -110,8 +118,8 @@ int main(int argc, char *argv[])
 	for(int i = 0; i < no_thread; i++)
 		pthread_join(tid[i], NULL);
 
-	// TO DO: destroy mutex or semaphore(0)
-	pthread_mutex_destroy(&mutex);
+	// TO DO: destroy mutex or semaphore
+	sem_destroy(&semaphore);
 	clrscr();
 	gotoxy(1, 1);
 	printf("Bye!\n");
@@ -126,17 +134,19 @@ void* ThreadFn(void *vParam)
 	//int y = 1;
 	int oldy = 1;
 	while(thread_cont){
-		// TO DO: implement entry section here (0)
-		if(param -> y == (param -> screen_height / 3))  pthread_mutex_lock(&mutex);
-		PrintXY(param->x, oldy,' ');
+		// TO DO: implement entry section here 
+		if(param -> y == (param -> screen_height / 3)) sem_wait(semaphore);
+		gotoxy(param->x, oldy);
+		putchar(' ');
 
-		PrintXY(param->x,param->y,"*");
+		gotoxy(param->x, param -> y);
+		putchar('*');
 
 		fflush(stdout);
 
-		// TO DO: implement exit section here (0)
-		if(param -> y == (param -> screen_height * 2 / 3)) pthread_mutex_unlock(&mutex);
-		oldy = param -> y;
+		// TO DO: implement exit section here 
+		if(param -> y == (param -> screen_height * 2 / 3)) sem_post(semaphore);
+		oldy = param ->  y;
 		param -> y++;
 
 		if(param -> y > param->screen_height)
@@ -148,7 +158,7 @@ void* ThreadFn(void *vParam)
 	}
 
 	// TO DO: if current broke loop in the critical region, unlock mutex
-	pthread_mutex_unlock(&mutex);
+	sem_post(semaphore);
 	return NULL;
 }
 
