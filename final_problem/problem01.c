@@ -188,11 +188,11 @@ int main(int argc, char *argv[])
 	pthread_attr_t attr;
 	int ret;
 
-//	pthread_attr_init(&attr);
+	pthread_attr_init(&attr);
 
 	for(int i = 0; i < no_phil; i++){
 		info[i].idx = i;		
-		ret = pthread_create(&phil[i],NULL,&Philosopher,(void *)&info[i]);
+		ret = pthread_create(&phil[i],&attr,&Philosopher,(void *)&info[i]);
 		if(ret){
 			printf("error pthread_create\n");
 			exit(1);
@@ -309,7 +309,7 @@ void PickUp(DiningPhilosophers *dp, int idx)
 	dp -> state[idx] = HUNGRY;
 	Test(dp,idx);
 	if(dp -> state[idx] != EATING)
-		(dp -> self[idx]).wait();
+		pthread_cond_wait(&dp -> self[idx],&dp -> mutex);
 }
 
 void PutDown(DiningPhilosophers *dp, int idx)
@@ -317,7 +317,7 @@ void PutDown(DiningPhilosophers *dp, int idx)
 	// TO DO: implement this function.
 	//		if necessary, use pthread_mutex_t to ensure mutual exclusion
 	//		use pthread_cond_t for the condition variables
-	int size = dp -> no_phil
+	int size = dp -> no_phil;
 	dp -> state[idx] = THINKING;
 	Test(dp,(idx + 4) % size);
 	Test(dp,(idx + 1) % size);
@@ -331,6 +331,6 @@ void Test(DiningPhilosophers *dp, int idx)
 	int size = dp -> no_phil;
 	if(dp -> state[(idx + 4) % size] != EATING && dp -> state[idx] == HUNGRY && dp -> state[(idx + 1) % size] != EATING ){
 		dp -> state[idx] =EATING;
-		(dp -> self[idx]).signal();
+		pthread_cond_signal(&dp -> self[idx]);
 	}
 }
