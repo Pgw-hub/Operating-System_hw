@@ -185,21 +185,36 @@ int main(int argc, char *argv[])
 
 	// TO DO: create philosopher threads
 	// 		  deliver the index of the each thread and the address of 'dp' through 'info'.
+	pthread_attr_t attr;
+	int ret;
+
+//	pthread_attr_init(&attr);
+
+	for(int i = 0; i < no_phil; i++){
+		info[i].idx = i;		
+		ret = pthread_create(&phil[i],NULL,&Philosopher,(void *)&info[i]);
+		if(ret){
+			printf("error pthread_create\n");
+			exit(1);
+		}
+	}
 	
 
 	sleep(duration);
 	
 	printf("Terminting threads...\n");
 	// TO DO: terminate threads by setting 'repeat' to zero
-
+	repeat = FALSE;
 
 
 	// TO DO: wait until all philosopher threads terminate
-
+	for(int i = 0; i < no_phil; i++){
+		pthread_join(phil[i],NULL);
+	}
 	
 
 	// TO DO: destroy all dynamically allocated memory blocks, including the ones in 'dp'
-
+	Destroy(&dp);
 
 
 	printf("Bye!\n");			// this message should be displayed.
@@ -265,7 +280,7 @@ void Init(DiningPhilosophers *dp, int no_phil)
 	}
 
 	for(int i = 0; i < no_phil; i++){
-		dp->state[i] = THINKING;
+		dp->state[i] = THINKING;//basic is thinking
 		pthread_cond_init(&dp->self[i], NULL);
 	}
 
@@ -291,10 +306,10 @@ void PickUp(DiningPhilosophers *dp, int idx)
 	// TO DO: implement this function.
 	//		if necessary, use pthread_mutex_t to ensure mutual exclusion
 	//		use pthread_cond_t for the condition variables
-
-
-
-
+	dp -> state[idx] = HUNGRY;
+	Test(dp,idx);
+	if(dp -> state[idx] != EATING)
+		(dp -> self[idx]).wait();
 }
 
 void PutDown(DiningPhilosophers *dp, int idx)
@@ -302,9 +317,10 @@ void PutDown(DiningPhilosophers *dp, int idx)
 	// TO DO: implement this function.
 	//		if necessary, use pthread_mutex_t to ensure mutual exclusion
 	//		use pthread_cond_t for the condition variables
-
-
-
+	int size = dp -> no_phil
+	dp -> state[idx] = THINKING;
+	Test(dp,(idx + 4) % size);
+	Test(dp,(idx + 1) % size);
 }
 
 void Test(DiningPhilosophers *dp, int idx)
@@ -312,7 +328,9 @@ void Test(DiningPhilosophers *dp, int idx)
 	// TO DO: implement this function.
 	//		if necessary, use pthread_mutex_t to ensure mutual exclusion
 	//		use pthread_cond_t for the condition variables
-
-
-
+	int size = dp -> no_phil;
+	if(dp -> state[(idx + 4) % size] != EATING && dp -> state[idx] == HUNGRY && dp -> state[(idx + 1) % size] != EATING ){
+		dp -> state[idx] =EATING;
+		(dp -> self[idx]).signal();
+	}
 }
