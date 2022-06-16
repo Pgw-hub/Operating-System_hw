@@ -312,10 +312,13 @@ void PickUp(DiningPhilosophers *dp, int idx)
 	//		if necessary, use pthread_mutex_t to ensure mutual exclusion
 	//		use pthread_cond_t for the condition variables
 	dp -> state[idx] = HUNGRY;
-	dp -> state[idx] = HUNGRY;
 	Test(dp,idx);
-	if(dp -> state[idx] != EATING)
+	if(dp -> state[idx] != EATING){
+		pthread_mutex_lock(&dp -> mutex);
 		pthread_cond_wait(&dp -> self[idx],&dp -> mutex);
+		pthread_mutex_unlock(&dp -> mutex);
+	}
+		
 }
 
 void PutDown(DiningPhilosophers *dp, int idx)
@@ -325,7 +328,7 @@ void PutDown(DiningPhilosophers *dp, int idx)
 	//		use pthread_cond_t for the condition variables
 	int size = dp -> no_phil;
 	dp -> state[idx] = THINKING;
-	Test(dp,(idx + 4) % size);
+	Test(dp,(idx + size - 1) % size);
 	Test(dp,(idx + 1) % size);
 }
 
@@ -335,7 +338,7 @@ void Test(DiningPhilosophers *dp, int idx)
 	//		if necessary, use pthread_mutex_t to ensure mutual exclusion
 	//		use pthread_cond_t for the condition variables
 	int size = dp -> no_phil;
-	if(dp -> state[(idx + 4) % size] != EATING && dp -> state[idx] == HUNGRY && dp -> state[(idx + 1) % size] != EATING ){
+	if(dp -> state[(idx + size - 1) % size] != EATING && dp -> state[idx] == HUNGRY && dp -> state[(idx + 1) % size] != EATING ){
 		dp -> state[idx] =EATING;
 		pthread_cond_signal(&dp -> self[idx]);
 	}
