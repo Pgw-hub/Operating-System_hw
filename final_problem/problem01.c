@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
 
 	for(int i = 0; i < no_phil; i++){
 		info[i].idx = i;		
-		ret = pthread_create(&phil[i],&attr,&Philosopher,(void *)&info[i]);
+		ret = pthread_create(&phil[i],&attr,Philosopher,(void *)&info);
 		if(ret){
 			printf("error pthread_create\n");
 			exit(1);
